@@ -9,8 +9,8 @@ const options = {
       description:
         "API REST para una tienda online de productos de supermercado",
       contact: {
-        name: "Tiburcio",
-        email: "tiburcio@example.com",
+        name: "Aitor Peña Sánchez",
+        email: "aitor@example.com", // No pongo el email real por privacidad
       },
     },
     servers: [
