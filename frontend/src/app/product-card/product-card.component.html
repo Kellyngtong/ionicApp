@@ -1,0 +1,47 @@
+<ion-card class="product-card">
+  <img
+    *ngIf="product.image"
+    [src]="product.image"
+    alt="{{ product.name }}"
+    (click)="goToDetail.emit(product.id)"
+  />
+  <ion-card-header
+    (click)="goToDetail.emit(product.id)"
+    style="cursor: pointer"
+  >
+    <ion-card-title>{{ product.name }}</ion-card-title>
+    <ion-card-subtitle>{{
+      product.price | currency : "EUR"
+    }}</ion-card-subtitle>
+  </ion-card-header>
+  <ion-card-content>
+    <p>{{ product.description }}</p>
+    <ion-button
+      expand="block"
+      color="primary"
+      (click)="addToCart.emit(product)"
+    >
+      <ion-icon slot="start" name="cart"></ion-icon>
+      Añadir al carrito
+    </ion-button>
+
+    <div class="action-buttons">
+      <ion-button
+        expand="block"
+        color="warning"
+        (click)="editProduct.emit(product)"
+      >
+        <ion-icon slot="start" name="create"></ion-icon>
+        Editar
+      </ion-button>
+      <ion-button
+        expand="block"
+        color="danger"
+        (click)="deleteProduct.emit(product.id)"
+      >
+        <ion-icon slot="start" name="trash"></ion-icon>
+        Borrar
+      </ion-button>
+    </div>
+  </ion-card-content>
+</ion-card>

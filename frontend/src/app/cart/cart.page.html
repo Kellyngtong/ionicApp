@@ -1,0 +1,47 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Carrito</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list *ngIf="cart.length > 0">
+    <ion-item *ngFor="let item of cart; let i = index">
+      <ion-label>
+        <h2>{{item.name}}</h2>
+        <strong>{{item.price | currency:'EUR'}}</strong>
+      </ion-label>
+      <ion-button fill="clear" color="danger" (click)="removeItem(i)">
+        <ion-icon name="trash"></ion-icon>
+      </ion-button>
+      <ion-button fill="outline" color="primary" (click)="updateQuantity(i, -1)"
+        >-</ion-button
+      >
+      <span style="margin: 0 8px">{{item.quantity}}</span>
+      <ion-button fill="outline" color="primary" (click)="updateQuantity(i, 1)"
+        >+</ion-button
+      >
+    </ion-item>
+    <ion-item>
+      <ion-label
+        ><strong>Total: {{getTotal() | currency:'EUR'}}</strong></ion-label
+      >
+    </ion-item>
+    <ion-item lines="none">
+      <ion-button
+        expand="block"
+        color="success"
+        routerLink="/checkout"
+        style="width: 100%"
+      >
+        Proceder al pago
+      </ion-button>
+    </ion-item>
+  </ion-list>
+  <div *ngIf="cart.length === 0" style="text-align: center; margin-top: 2em">
+    <p>El carrito está vacío.</p>
+  </div>
+</ion-content>
