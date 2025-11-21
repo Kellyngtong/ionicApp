@@ -56,6 +56,13 @@ export class AppComponent implements OnDestroy {
     try {
       const resp: any = await this.auth.uploadAvatar(file).toPromise();
       if (resp && resp.imageUrl) {
+        // Persist avatar URL in backend for the authenticated user
+        try {
+          await this.auth.updateAvatarUrl(resp.imageUrl).toPromise();
+        } catch (uErr) {
+          console.warn('Failed to persist avatar in backend:', uErr);
+        }
+
         // update local user and notify
         const updated = { ...(this.user || {}), avatar: resp.imageUrl };
         localStorage.setItem('currentUser', JSON.stringify(updated));

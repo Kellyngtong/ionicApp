@@ -42,56 +42,61 @@ export class HomePage {
     await loading.present();
 
     try {
-      // If the modal returned a File object, upload it first to our backend
+      const token = localStorage.getItem('accessToken');
+
+      // If the modal returned a File object, send multipart/form-data including fields + image
       if (data.file) {
         const formData = new FormData();
+        formData.append('name', product.name);
+        formData.append('description', product.description || '');
+        formData.append('price', String(product.price));
+        formData.append('stock', String(product.stock));
         formData.append('image', data.file);
 
-        try {
-    const upResp = await fetch(`${window.location.protocol}//${window.location.hostname}:4800/api/upload`, {
-            method: 'POST',
-            body: formData,
-          });
+        const headers: any = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
 
-          if (!upResp.ok) {
-            console.error('Upload failed:', upResp.statusText);
-            const t = await this.toastCtrl.create({ message: 'Error subiendo la imagen; se intentará crear sin imagen.', duration: 2500, color: 'warning' });
-            await t.present();
-          } else {
-            const upJson = await upResp.json();
-            // Use the returned public URL as the product image
-            product.image = upJson.imageUrl;
-          }
-        } catch (err) {
-          console.error('Error uploading image:', err);
-          const t = await this.toastCtrl.create({ message: 'Error subiendo la imagen; se intentará crear sin imagen.', duration: 2500, color: 'warning' });
+        const response = await fetch(`${window.location.protocol}//${window.location.hostname}:4800/api/products`, {
+          method: 'POST',
+          headers,
+          body: formData,
+        });
+
+        if (response.ok) {
+          const t = await this.toastCtrl.create({ message: 'Producto creado correctamente', duration: 2000, color: 'success' });
+          await t.present();
+          this.loadProducts(); // Recargar la lista
+        } else {
+          const text = await response.text();
+          console.error('Create product failed:', text);
+          const t = await this.toastCtrl.create({ message: 'Error al crear el producto', duration: 2500, color: 'danger' });
           await t.present();
         }
-      } else if (!product.image && data.previewUrl) {
-        // Fallback: if no file was uploaded but a preview (base64) exists, use it
-        product.image = data.previewUrl;
-      }
-
-      const token = localStorage.getItem('accessToken');
-      const headers: any = { 'Content-Type': 'application/json' };
-      if (token) headers['Authorization'] = `Bearer ${token}`;
-
-  const response = await fetch(`${window.location.protocol}//${window.location.hostname}:4800/api/products`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(product),
-      });
-
-      if (response.ok) {
-        const t = await this.toastCtrl.create({ message: 'Producto creado correctamente', duration: 2000, color: 'success' });
-        await t.present();
-        this.loadProducts(); // Recargar la lista
       } else {
-        const text = await response.text();
-        console.error('Create product failed:', text);
-        const t = await this.toastCtrl.create({ message: 'Error al crear el producto', duration: 2500, color: 'danger' });
-        await t.present();
+        // No file: send JSON (but if previewUrl exists, use it as image)
+        if (!product.image && data.previewUrl) product.image = data.previewUrl;
+
+        const headers: any = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const response = await fetch(`${window.location.protocol}//${window.location.hostname}:4800/api/products`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(product),
+        });
+
+        if (response.ok) {
+          const t = await this.toastCtrl.create({ message: 'Producto creado correctamente', duration: 2000, color: 'success' });
+          await t.present();
+          this.loadProducts(); // Recargar la lista
+        } else {
+          const text = await response.text();
+          console.error('Create product failed:', text);
+          const t = await this.toastCtrl.create({ message: 'Error al crear el producto', duration: 2500, color: 'danger' });
+          await t.present();
+        }
       }
+
     } catch (error) {
       console.error('Error creating product:', error);
       const t = await this.toastCtrl.create({ message: 'Error al crear el producto', duration: 2500, color: 'danger' });

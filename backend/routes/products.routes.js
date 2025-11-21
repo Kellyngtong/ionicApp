@@ -1,6 +1,20 @@
 module.exports = (app) => {
   const products = require("../controllers/product.controller.js");
   var router = require("express").Router();
+  const upload = require('../multer/upload');
+  // helper to run multer and catch errors
+  function singleUpload(fieldName) {
+    return (req, res, next) => {
+      upload.single(fieldName)(req, res, function (err) {
+        if (err) {
+          if (err.code === 'LIMIT_FILE_SIZE') return res.status(400).json({ error: 'File too large' });
+          return res.status(400).json({ error: err.message || 'Upload error' });
+        }
+        if (req.fileValidationError) return res.status(400).json({ error: req.fileValidationError });
+        next();
+      });
+    };
+  }
 
   /**
    * @swagger
@@ -42,7 +56,8 @@ module.exports = (app) => {
    *         description: Error del servidor
    */
   const authJwt = require("../middlewares/authJwt");
-  router.post("/", authJwt.verifyToken, products.create);
+  // POST product with optional image file (field name 'image')
+  router.post("/", authJwt.verifyToken, singleUpload('image'), products.create);
 
   /**
    * @swagger
@@ -136,7 +151,8 @@ module.exports = (app) => {
    *       500:
    *         description: Error del servidor
    */
-  router.put("/:id", authJwt.verifyToken, products.update);
+  // PUT product with optional image file
+  router.put("/:id", authJwt.verifyToken, singleUpload('image'), products.update);
 
   /**
    * @swagger

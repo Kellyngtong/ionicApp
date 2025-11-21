@@ -3,17 +3,26 @@ const Product = db.products;
 const Op = db.Sequelize.Op;
 
 exports.create = (req, res) => {
+  // validate basic fields
   if (!req.body.name || !req.body.price) {
     res.status(400).send({ message: "Name and price are required!" });
     return;
   }
+
+  // if multer provided a file, build the public URL
+  let imageUrl = req.body.image;
+  if (req.file) {
+    imageUrl = `${req.protocol}://${req.get('host')}/public/images/${req.file.filename}`;
+  }
+
   const product = {
     name: req.body.name,
     description: req.body.description,
     price: req.body.price,
     stock: req.body.stock,
-    image: req.body.image,
+    image: imageUrl,
   };
+
   Product.create(product)
     .then((data) => res.send(data))
     .catch((err) => {
@@ -54,6 +63,11 @@ exports.findOne = (req, res) => {
 
 exports.update = (req, res) => {
   const id = req.params.id;
+  // if multer provided a file, set image URL in the body
+  if (req.file) {
+    req.body.image = `${req.protocol}://${req.get('host')}/public/images/${req.file.filename}`;
+  }
+
   Product.update(req.body, { where: { id: id } })
     .then((num) => {
       if (num == 1) {

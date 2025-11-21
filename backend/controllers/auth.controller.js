@@ -50,8 +50,9 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: "24h" });
-    res.json({ accessToken: token, user: { id: user.id, username: user.username, email: user.email } });
+  const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: "24h" });
+  // include avatar in the returned user so frontend can show it immediately
+  res.json({ accessToken: token, user: { id: user.id, username: user.username, email: user.email, avatar: user.avatar } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error" });
