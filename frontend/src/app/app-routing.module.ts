@@ -25,8 +25,20 @@ const routes: Routes = [
       import('./checkout/checkout.module').then((m) => m.CheckoutPageModule),
   },
   {
+    path: 'welcome',
+    loadChildren: () => import('./auth/welcome.module').then((m) => m.WelcomePageModule),
+  },
+  {
+    path: 'login',
+    loadChildren: () => import('./auth/login.module').then((m) => m.LoginPageModule),
+  },
+  {
+    path: 'register',
+    loadChildren: () => import('./auth/register.module').then((m) => m.RegisterPageModule),
+  },
+  {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'welcome',
     pathMatch: 'full',
   },
 ];

@@ -15,7 +15,7 @@ export class ProductDetailPage implements OnInit {
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      const response = await fetch(`http://localhost:4800/api/products/${id}`);
+        const response = await fetch(`${window.location.protocol}//${window.location.hostname}:4800/api/products/${id}`);
       this.product = await response.json();
     }
   }

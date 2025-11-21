@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Registro</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form (ngSubmit)="submit()">
+    <ion-item>
+      <ion-label position="stacked">Usuario</ion-label>
+      <ion-input type="text" [(ngModel)]="username" name="username" required></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Email</ion-label>
+      <ion-input type="email" [(ngModel)]="email" name="email" required></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Contraseña</ion-label>
+      <ion-input type="password" [(ngModel)]="password" name="password" required></ion-input>
+    </ion-item>
+
+    <ion-item lines="none">
+      <ion-label position="stacked">Avatar (opcional)</ion-label>
+      <div class="avatar-row">
+        <img *ngIf="previewUrl" [src]="previewUrl" class="avatar-preview" />
+        <input #fileInput type="file" accept="image/*" capture="environment" (change)="onFileSelected($event)" />
+      </div>
+    </ion-item>
+
+    <ion-button expand="block" type="submit" class="ion-margin-top">Registrarse</ion-button>
+  </form>
+
+  <div class="ion-text-center ion-margin-top">
+    <ion-button fill="clear" (click)="router.navigateByUrl('/login')">¿Ya tienes cuenta? Inicia sesión</ion-button>
+  </div>
+</ion-content>

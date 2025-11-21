@@ -41,7 +41,8 @@ module.exports = (app) => {
    *       500:
    *         description: Error del servidor
    */
-  router.post("/", products.create);
+  const authJwt = require("../middlewares/authJwt");
+  router.post("/", authJwt.verifyToken, products.create);
 
   /**
    * @swagger
@@ -135,7 +136,7 @@ module.exports = (app) => {
    *       500:
    *         description: Error del servidor
    */
-  router.put("/:id", products.update);
+  router.put("/:id", authJwt.verifyToken, products.update);
 
   /**
    * @swagger
@@ -156,7 +157,7 @@ module.exports = (app) => {
    *       500:
    *         description: Error del servidor
    */
-  router.delete("/:id", products.delete);
+  router.delete("/:id", authJwt.verifyToken, products.delete);
 
   app.use("/api/products", router);
 };

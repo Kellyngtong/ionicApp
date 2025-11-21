@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const swaggerUi = require("swagger-ui-express");
@@ -82,6 +83,21 @@ db.sequelize.sync({ force: true }).then(() => {
   ]).then(() => {
     console.log("Productos de supermercado creados correctamente.");
   });
+  // Optional: create a default admin user for convenience
+  const bcrypt = require("bcrypt");
+  const User = db.users;
+  (async () => {
+    try {
+      const existing = await User.findOne({ where: { email: "admin@local" } });
+      if (!existing) {
+        const hashed = await bcrypt.hash("admin123", 10);
+        await User.create({ username: "admin", email: "admin@local", password: hashed });
+        console.log("Default admin user created: admin@local / admin123");
+      }
+    } catch (err) {
+      console.error("Error creating default user:", err);
+    }
+  })();
 });
 
 app.get("/", (req, res) => {
@@ -89,6 +105,7 @@ app.get("/", (req, res) => {
 });
 
 require("./routes/products.routes")(app);
+require("./routes/auth.routes")(app);
 
 app.get("/api-docs.json", (req, res) => {
   res.setHeader("Content-Type", "application/json");
@@ -117,19 +134,28 @@ const path = require("path");
 const upload = require("./multer/upload");
 
 
-app.post("/api/upload", upload.single("image"), (req, res) => {
+app.post('/api/upload', (req, res) => {
+  // use upload.single as an inner middleware so we can catch multer errors and return JSON
+  upload.single('image')(req, res, function (err) {
+    if (err) {
+      // Multer errors contain a code like 'LIMIT_FILE_SIZE'
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'File too large' });
+      }
+      return res.status(400).json({ error: err.message || 'Upload error' });
+    }
 
+    if (req.fileValidationError) {
+      return res.status(400).json({ error: req.fileValidationError });
+    }
 
-  if (req.fileValidationError) {
-    return res.status(400).json({ error: req.fileValidationError });
-  }
+    if (!req.file) {
+      return res.status(400).json({ error: 'No se subió ninguna imagen' });
+    }
 
-  if (!req.file) {
-    return res.status(400).json({ error: "No se subió ninguna imagen" });
-  }
-
-  const imageUrl = `${req.protocol}://${req.get("host")}/public/images/${req.file.filename}`;
-  res.json({ imageUrl });
+    const imageUrl = `${req.protocol}://${req.get('host')}/public/images/${req.file.filename}`;
+    res.json({ imageUrl });
+  });
 });
 
 

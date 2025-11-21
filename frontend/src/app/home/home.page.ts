@@ -48,7 +48,7 @@ export class HomePage {
         formData.append('image', data.file);
 
         try {
-          const upResp = await fetch('http://localhost:4800/api/upload', {
+    const upResp = await fetch(`${window.location.protocol}//${window.location.hostname}:4800/api/upload`, {
             method: 'POST',
             body: formData,
           });
@@ -72,11 +72,13 @@ export class HomePage {
         product.image = data.previewUrl;
       }
 
-      const response = await fetch('http://localhost:4800/api/products', {
+      const token = localStorage.getItem('accessToken');
+      const headers: any = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const response = await fetch(`${window.location.protocol}//${window.location.hostname}:4800/api/products`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(product),
       });
 
@@ -101,7 +103,7 @@ export class HomePage {
 
   async loadProducts() {
     try {
-      const response = await fetch('http://localhost:4800/api/products');
+  const response = await fetch(`${window.location.protocol}//${window.location.hostname}:4800/api/products`);
       this.products = await response.json();
     } catch (error) {
       console.error('Error loading products:', error);
@@ -127,8 +129,13 @@ export class HomePage {
     }
 
     try {
-      const response = await fetch(`http://localhost:4800/api/products/${id}`, {
+      const token = localStorage.getItem('accessToken');
+      const headers: any = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const response = await fetch(`${window.location.protocol}//${window.location.hostname}:4800/api/products/${id}`, {
         method: 'DELETE',
+        headers,
       });
 
       if (response.ok) {
@@ -161,13 +168,15 @@ export class HomePage {
     };
 
     try {
+      const token = localStorage.getItem('accessToken');
+      const headers: any = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
       const response = await fetch(
-        `http://localhost:4800/api/products/${product.id}`,
+        `${window.location.protocol}//${window.location.hostname}:4800/api/products/${product.id}`,
         {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers,
           body: JSON.stringify(updatedProduct),
         }
       );
@@ -210,7 +219,7 @@ export class HomePage {
     };
 
     try {
-      const response = await fetch('http://localhost:4800/api/products', {
+  const response = await fetch(`${window.location.protocol}//${window.location.hostname}:4800/api/products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
