@@ -1,15 +1,21 @@
 <ion-app>
   <ion-header>
     <ion-toolbar>
-      <ion-title>LaTiendita</ion-title>
-      <ion-buttons slot="end">
-        <ng-container *ngIf="user; else guestButtons">
+      <!-- Left: user avatar + name when logged in -->
+      <ion-buttons slot="start">
+        <ng-container *ngIf="user">
           <ion-button fill="clear" (click)="openAvatarPicker()">
             <ion-avatar style="width:36px;height:36px;margin-right:8px">
               <img [src]="user.avatar || 'https://www.gravatar.com/avatar?d=mp&s=80'" alt="avatar" />
             </ion-avatar>
           </ion-button>
-          <ion-label style="margin-right:8px">{{ user.username }}</ion-label>
+          <ion-label style="margin-left:4px">{{ user.username }}</ion-label>
+        </ng-container>
+      </ion-buttons>
+
+      <!-- Right: logout or guest actions -->
+      <ion-buttons slot="end">
+        <ng-container *ngIf="user; else guestButtons">
           <ion-button fill="clear" (click)="logout()">Cerrar sesión</ion-button>
         </ng-container>
         <ng-template #guestButtons>
