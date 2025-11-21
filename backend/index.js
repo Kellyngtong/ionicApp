@@ -21,7 +21,6 @@ const db = require("./models");
 db.sequelize.sync({ force: true }).then(() => {
   console.log("Drop and re-sync db.");
 
-
   const Product = db.products;
   Product.bulkCreate([
     {
@@ -112,3 +111,26 @@ app.listen(PORT, () => {
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to FIRST PROYECT application." });
 });
+
+
+const path = require("path");
+const upload = require("./multer/upload");
+
+
+app.post("/api/upload", upload.single("image"), (req, res) => {
+
+
+  if (req.fileValidationError) {
+    return res.status(400).json({ error: req.fileValidationError });
+  }
+
+  if (!req.file) {
+    return res.status(400).json({ error: "No se subió ninguna imagen" });
+  }
+
+  const imageUrl = `${req.protocol}://${req.get("host")}/public/images/${req.file.filename}`;
+  res.json({ imageUrl });
+});
+
+
+app.use("/public", express.static(path.join(__dirname, "public")));

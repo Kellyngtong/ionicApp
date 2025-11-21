@@ -1,0 +1,81 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Nuevo producto</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cancel()">Cerrar</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form (ngSubmit)="create()" #formRef="ngForm" class="product-form">
+    <ion-list>
+      <ion-item>
+        <ion-label position="floating">Nombre</ion-label>
+        <ion-input required [(ngModel)]="product.name" name="name"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Descripción</ion-label>
+        <ion-textarea
+          required
+          [(ngModel)]="product.description"
+          name="description"
+        ></ion-textarea>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Precio</ion-label>
+        <ion-input
+          type="number"
+          required
+          [(ngModel)]="product.price"
+          name="price"
+        ></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Stock</ion-label>
+        <ion-input
+          type="number"
+          required
+          [(ngModel)]="product.stock"
+          name="stock"
+        ></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Imagen (URL opcional)</ion-label>
+        <ion-input [(ngModel)]="product.image" name="image"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label>O subir archivo</ion-label>
+        <input
+          type="file"
+          accept="image/*"
+          capture="environment"
+          (change)="onFileSelected($event)"
+        />
+      </ion-item>
+      <ion-item *ngIf="previewUrl">
+        <img
+          [src]="previewUrl"
+          alt="preview"
+          style="max-width: 100%; height: auto"
+        />
+      </ion-item>
+    </ion-list>
+
+    <div
+      style="
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        padding: 1rem;
+      "
+    >
+      <ion-button color="medium" type="button" (click)="cancel()"
+        >Cancelar</ion-button
+      >
+      <ion-button type="submit" [disabled]="!formRef.form.valid"
+        >Crear</ion-button
+      >
+    </div>
+  </form>
+</ion-content>

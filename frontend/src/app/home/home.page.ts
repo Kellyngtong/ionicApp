@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { ModalController, LoadingController, ToastController } from '@ionic/angular';
+import { ProductModalComponent } from '../product-modal/product-modal.component';
 
 @Component({
   selector: 'app-home',
@@ -13,8 +15,88 @@ export class HomePage {
 
   products: any[] = [];
 
-  constructor() {
+  constructor(
+    private modalCtrl: ModalController,
+    private loadingCtrl: LoadingController,
+    private toastCtrl: ToastController
+  ) {
     this.loadProducts();
+  }
+
+  async openCreateModal() {
+    const modal = await this.modalCtrl.create({
+      component: ProductModalComponent,
+      backdropDismiss: true,
+    });
+
+    await modal.present();
+
+    const { data } = await modal.onDidDismiss();
+    if (!data || !data.product) return;
+
+    const product = data.product;
+
+    const loading = await this.loadingCtrl.create({
+      message: 'Creando producto...'
+    });
+    await loading.present();
+
+    try {
+      // If the modal returned a File object, upload it first to our backend
+      if (data.file) {
+        const formData = new FormData();
+        formData.append('image', data.file);
+
+        try {
+          const upResp = await fetch('http://localhost:4800/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!upResp.ok) {
+            console.error('Upload failed:', upResp.statusText);
+            const t = await this.toastCtrl.create({ message: 'Error subiendo la imagen; se intentará crear sin imagen.', duration: 2500, color: 'warning' });
+            await t.present();
+          } else {
+            const upJson = await upResp.json();
+            // Use the returned public URL as the product image
+            product.image = upJson.imageUrl;
+          }
+        } catch (err) {
+          console.error('Error uploading image:', err);
+          const t = await this.toastCtrl.create({ message: 'Error subiendo la imagen; se intentará crear sin imagen.', duration: 2500, color: 'warning' });
+          await t.present();
+        }
+      } else if (!product.image && data.previewUrl) {
+        // Fallback: if no file was uploaded but a preview (base64) exists, use it
+        product.image = data.previewUrl;
+      }
+
+      const response = await fetch('http://localhost:4800/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(product),
+      });
+
+      if (response.ok) {
+        const t = await this.toastCtrl.create({ message: 'Producto creado correctamente', duration: 2000, color: 'success' });
+        await t.present();
+        this.loadProducts(); // Recargar la lista
+      } else {
+        const text = await response.text();
+        console.error('Create product failed:', text);
+        const t = await this.toastCtrl.create({ message: 'Error al crear el producto', duration: 2500, color: 'danger' });
+        await t.present();
+      }
+    } catch (error) {
+      console.error('Error creating product:', error);
+      const t = await this.toastCtrl.create({ message: 'Error al crear el producto', duration: 2500, color: 'danger' });
+      await t.present();
+    } finally {
+      await loading.dismiss();
+    }
   }
 
   async loadProducts() {

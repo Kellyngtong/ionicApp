@@ -18,6 +18,9 @@ module.exports = (sequelize, Sequelize) => {
     image: {
       type: Sequelize.STRING,
     },
+    filename: {
+      type: Sequelize.STRING,
+    },
   });
   return Product;
 };
