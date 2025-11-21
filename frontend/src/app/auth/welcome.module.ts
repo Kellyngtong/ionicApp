@@ -6,6 +6,12 @@ import { RouterModule } from '@angular/router';
 import { WelcomePage } from './welcome.page';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, WelcomePage, RouterModule.forChild([{ path: '', component: WelcomePage }])],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    RouterModule.forChild([{ path: '', component: WelcomePage }]),
+    WelcomePage,
+  ],
 })
 export class WelcomePageModule {}
